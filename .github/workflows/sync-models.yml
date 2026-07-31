@@ -1,0 +1,33 @@
+name: Sync models.dev mirror
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours, offset minute
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch models.dev snapshot
+        run: |
+          curl -fsSL --max-time 60 https://models.dev/api.json -o models.json.new
+          node -e "const m=require('./models.json.new'); const n=Object.keys(m).length; if(n<50) throw new Error('suspiciously few providers: '+n); console.log('fetched providers:', n)"
+          mv models.json.new models.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add models.json
+          if git diff --staged --quiet; then
+            echo "models.json unchanged"
+          else
+            git commit -m "chore: sync models.dev snapshot"
+            git push
+          fi
