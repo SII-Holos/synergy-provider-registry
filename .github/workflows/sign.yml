@@ -1,0 +1,36 @@
+name: Sign catalog
+
+on:
+  push:
+    branches: [main]
+    paths: [catalog.v1.json]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate catalog
+        run: node -e "const c=require('./catalog.v1.json'); if(c.version!==1||!c.providers) throw new Error('invalid catalog'); console.log('providers:', Object.keys(c.providers).length)"
+
+      - name: Sign catalog
+        env:
+          CATALOG_PRIVATE_KEY: ${{ secrets.CATALOG_PRIVATE_KEY }}
+        run: node scripts/sign.mjs
+
+      - name: Commit signature
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog.v1.json.sig
+          if git diff --staged --quiet; then
+            echo "signature unchanged"
+          else
+            git commit -m "chore: sign catalog.v1.json"
+            git push
+          fi
