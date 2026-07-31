@@ -3,7 +3,7 @@ name: Sign catalog
 on:
   push:
     branches: [main]
-    paths: [catalog.v1.json]
+    paths: [catalog.v1.json, models.json]
   workflow_dispatch:
 
 permissions:
@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate catalog
-        run: node -e "const c=require('./catalog.v1.json'); if(c.version!==1||!c.providers) throw new Error('invalid catalog'); console.log('providers:', Object.keys(c.providers).length)"
+      - name: Validate catalog against models.json
+        run: node scripts/validate.mjs
 
       - name: Sign catalog
         env:

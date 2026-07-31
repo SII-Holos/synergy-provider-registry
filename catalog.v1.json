@@ -4,7 +4,6 @@
     "openai": {
       "id": "openai",
       "name": "OpenAI",
-      "modelsDevProviderID": "openai",
       "recommendation": {
         "level": "recommended",
         "rank": 40,
@@ -21,7 +20,6 @@
     "openai-codex": {
       "id": "openai-codex",
       "name": "OpenAI Codex",
-      "modelsDevProviderID": "openai-codex",
       "recommendation": {
         "level": "recommended",
         "rank": 20,
@@ -33,7 +31,6 @@
     "anthropic": {
       "id": "anthropic",
       "name": "Anthropic",
-      "modelsDevProviderID": "anthropic",
       "recommendation": {
         "level": "recommended",
         "rank": 10,
@@ -50,7 +47,6 @@
     "google": {
       "id": "google",
       "name": "Google",
-      "modelsDevProviderID": "google",
       "recommendation": {
         "level": "recommended",
         "rank": 50,
@@ -67,7 +63,6 @@
     "github-copilot": {
       "id": "github-copilot",
       "name": "GitHub Copilot",
-      "modelsDevProviderID": "github-copilot",
       "recommendation": {
         "level": "recommended",
         "rank": 30,
@@ -81,263 +76,12 @@
         "gpt-5.3-codex",
         "claude-sonnet-4.6",
         "claude-haiku-4.5",
-        "gemini-3-pro-preview"
-      ],
-      "models": {
-        "gpt-5.4": {
-          "id": "gpt-5.4",
-          "name": "GPT-5.4",
-          "description": "Agent-ready GPT for coding and computer-use workflows at a lower cost",
-          "family": "gpt",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "none",
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          ],
-          "tool_call": true,
-          "structured_output": true,
-          "temperature": false,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-03-05",
-          "last_updated": "2026-03-05",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 1050000,
-            "input": 922000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 2.5,
-            "output": 15,
-            "cache_read": 0.25,
-            "tiers": [
-              {
-                "input": 5,
-                "output": 22.5,
-                "cache_read": 0.5,
-                "tier": {
-                  "type": "context",
-                  "size": 272000
-                }
-              }
-            ],
-            "context_over_200k": {
-              "input": 5,
-              "output": 22.5,
-              "cache_read": 0.5
-            }
-          }
-        },
-        "gpt-5.4-mini": {
-          "id": "gpt-5.4-mini",
-          "name": "GPT-5.4 mini",
-          "description": "Strong small GPT for coding subagents, quick tool use, and high-volume work",
-          "family": "gpt-mini",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "none",
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          ],
-          "tool_call": true,
-          "structured_output": true,
-          "temperature": false,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-03-17",
-          "last_updated": "2026-03-17",
-          "modalities": {
-            "input": [
-              "text",
-              "image"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 400000,
-            "input": 272000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 0.75,
-            "output": 4.5,
-            "cache_read": 0.075
-          }
-        },
-        "gpt-5.3-codex": {
-          "id": "gpt-5.3-codex",
-          "name": "GPT-5.3 Codex",
-          "description": "Coding-optimized GPT model for repository edits, reviews, and agentic software work",
-          "family": "gpt-codex",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          ],
-          "tool_call": true,
-          "structured_output": true,
-          "temperature": false,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-02-05",
-          "last_updated": "2026-02-05",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 400000,
-            "input": 272000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 1.75,
-            "output": 14,
-            "cache_read": 0.175
-          }
-        },
-        "claude-sonnet-4.6": {
-          "id": "claude-sonnet-4.6",
-          "name": "Claude Sonnet 4.6",
-          "description": "Claude workhorse for coding agents, careful analysis, and production cost control",
-          "family": "claude-sonnet",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "low",
-                "medium",
-                "high",
-                "max"
-              ]
-            },
-            {
-              "type": "budget_tokens",
-              "min": 1024,
-              "max": 32000
-            }
-          ],
-          "tool_call": true,
-          "temperature": true,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-02-17",
-          "last_updated": "2026-03-13",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 200000,
-            "input": 168000,
-            "output": 32000
-          },
-          "cost": {
-            "input": 3,
-            "output": 15,
-            "cache_read": 0.3,
-            "cache_write": 3.75
-          }
-        },
-        "claude-haiku-4.5": {
-          "id": "claude-haiku-4.5",
-          "name": "Claude Haiku 4.5 (latest)",
-          "description": "Fast Claude lane for lightweight agents, office tasks, and responsive chat",
-          "family": "claude-haiku",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "budget_tokens",
-              "min": 1024,
-              "max": 32000
-            }
-          ],
-          "tool_call": true,
-          "temperature": true,
-          "knowledge": "2025-02-28",
-          "release_date": "2025-10-15",
-          "last_updated": "2025-10-15",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 200000,
-            "input": 136000,
-            "output": 64000
-          },
-          "cost": {
-            "input": 1,
-            "output": 5,
-            "cache_read": 0.1,
-            "cache_write": 1.25
-          }
-        }
-      }
+        "gemini-3.1-pro-preview"
+      ]
     },
     "vercel": {
       "id": "vercel",
       "name": "Vercel AI Gateway",
-      "modelsDevProviderID": "vercel",
       "recommendation": {
         "level": "recommended",
         "rank": 70,
@@ -354,7 +98,6 @@
     "openrouter": {
       "id": "openrouter",
       "name": "OpenRouter",
-      "modelsDevProviderID": "openrouter",
       "recommendation": {
         "level": "recommended",
         "rank": 60,
@@ -371,141 +114,18 @@
     "minimax": {
       "id": "minimax",
       "name": "MiniMax (OAuth)",
-      "modelsDevProviderID": "minimax",
       "fallbackModels": [
         "MiniMax-M2.7",
         "MiniMax-M3"
-      ],
-      "models": {
-        "MiniMax-M2.7": {
-          "id": "MiniMax-M2.7",
-          "name": "MiniMax-M2.7",
-          "description": "Open MiniMax flagship for coding agents, office automation, and complex environments",
-          "family": "minimax",
-          "attachment": false,
-          "reasoning": true,
-          "reasoning_options": [],
-          "tool_call": true,
-          "temperature": true,
-          "release_date": "2026-03-18",
-          "last_updated": "2026-03-18",
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": true,
-          "limit": {
-            "context": 204800,
-            "output": 131072
-          },
-          "cost": {
-            "input": 0.3,
-            "output": 1.2,
-            "cache_read": 0.06,
-            "cache_write": 0.375
-          }
-        },
-        "MiniMax-M3": {
-          "id": "MiniMax-M3",
-          "name": "MiniMax-M3",
-          "description": "MiniMax multimodal model for long-context coding, perception, and agent planning",
-          "family": "minimax",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "toggle"
-            }
-          ],
-          "tool_call": true,
-          "temperature": true,
-          "release_date": "2026-06-01",
-          "last_updated": "2026-06-25",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "video"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": true,
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 0.3,
-            "output": 1.2,
-            "cache_read": 0.06,
-            "tiers": [
-              {
-                "input": 0.6,
-                "output": 2.4,
-                "cache_read": 0.12,
-                "tier": {
-                  "type": "context",
-                  "size": 512000
-                }
-              }
-            ],
-            "context_over_200k": {
-              "input": 0.6,
-              "output": 2.4,
-              "cache_read": 0.12
-            }
-          }
-        }
-      }
+      ]
     },
     "alibaba-coding-plan": {
       "id": "alibaba-coding-plan",
       "name": "Alibaba Cloud (Coding Plan)",
-      "modelsDevProviderID": "alibaba-coding-plan",
       "fallbackModels": [
         "qwen3-coder-plus",
-        "qwen3-max"
-      ],
-      "models": {
-        "qwen3-coder-plus": {
-          "id": "qwen3-coder-plus",
-          "name": "Qwen3 Coder Plus",
-          "description": "Qwen coding model for software agents, repository edits, and code reasoning",
-          "family": "qwen",
-          "attachment": false,
-          "reasoning": false,
-          "tool_call": true,
-          "temperature": true,
-          "knowledge": "2025-04",
-          "release_date": "2025-07-23",
-          "last_updated": "2025-07-23",
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": true,
-          "limit": {
-            "context": 1000000,
-            "output": 65536
-          },
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cache_read": 0,
-            "cache_write": 0
-          }
-        }
-      }
+        "qwen3.7-max"
+      ]
     },
     "qwen-oauth": {
       "id": "qwen-oauth",
@@ -514,164 +134,16 @@
       "fallbackModels": [
         "qwen3-coder-plus",
         "qwen3-max",
-        "qwen3-plus"
-      ],
-      "models": {
-        "qwen3-coder-plus": {
-          "id": "qwen3-coder-plus",
-          "name": "Qwen3 Coder Plus",
-          "description": "Hosted Qwen coder for software agents, repo edits, and long-context code",
-          "family": "qwen",
-          "attachment": false,
-          "reasoning": false,
-          "tool_call": true,
-          "temperature": true,
-          "knowledge": "2025-04",
-          "release_date": "2025-07-23",
-          "last_updated": "2025-07-23",
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": true,
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          },
-          "cost": {
-            "input": 1,
-            "output": 5
-          }
-        },
-        "qwen3-max": {
-          "id": "qwen3-max",
-          "name": "Qwen3 Max",
-          "description": "Flagship Qwen3 model for coding agents, complex reasoning, and tool use",
-          "family": "qwen",
-          "attachment": false,
-          "reasoning": false,
-          "tool_call": true,
-          "temperature": true,
-          "knowledge": "2025-04",
-          "release_date": "2025-09-23",
-          "last_updated": "2025-09-23",
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          },
-          "cost": {
-            "input": 1.2,
-            "output": 6
-          }
-        }
-      }
+        "qwen3.7-plus"
+      ]
     },
     "xiaomi": {
       "id": "xiaomi",
       "name": "Xiaomi MiMo",
-      "modelsDevProviderID": "xiaomi",
       "fallbackModels": [
         "mimo-v2.5-pro",
         "mimo-v2-omni"
-      ],
-      "models": {
-        "mimo-v2.5-pro": {
-          "id": "mimo-v2.5-pro",
-          "name": "MiMo-V2.5-Pro",
-          "description": "Stronger MiMo Pro tier for multimodal reasoning and coding-agent execution",
-          "family": "mimo",
-          "attachment": false,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "toggle"
-            }
-          ],
-          "tool_call": true,
-          "interleaved": {
-            "field": "reasoning_content"
-          },
-          "temperature": true,
-          "knowledge": "2024-12",
-          "release_date": "2026-04-22",
-          "last_updated": "2026-06-24",
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": true,
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "cost": {
-            "input": 0.435,
-            "output": 0.87,
-            "cache_read": 0.0036
-          }
-        },
-        "mimo-v2-omni": {
-          "id": "mimo-v2-omni",
-          "name": "MiMo-V2-Omni",
-          "description": "Legacy model retained for compatibility with older integrations",
-          "family": "mimo",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "toggle"
-            }
-          ],
-          "tool_call": true,
-          "interleaved": {
-            "field": "reasoning_content"
-          },
-          "temperature": true,
-          "knowledge": "2024-12",
-          "release_date": "2026-03-18",
-          "last_updated": "2026-06-24",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "audio",
-              "video",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 262144,
-            "output": 131072
-          },
-          "status": "deprecated",
-          "cost": {
-            "input": 0.14,
-            "output": 0.28,
-            "cache_read": 0.0028
-          }
-        }
-      }
+      ]
     },
     "github-copilot-enterprise": {
       "id": "github-copilot-enterprise",
@@ -682,215 +154,7 @@
         "gpt-5.4-mini",
         "gpt-5.3-codex",
         "claude-sonnet-4.6"
-      ],
-      "models": {
-        "gpt-5.4": {
-          "id": "gpt-5.4",
-          "name": "GPT-5.4",
-          "description": "Agent-ready GPT for coding and computer-use workflows at a lower cost",
-          "family": "gpt",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "none",
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          ],
-          "tool_call": true,
-          "structured_output": true,
-          "temperature": false,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-03-05",
-          "last_updated": "2026-03-05",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 1050000,
-            "input": 922000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 2.5,
-            "output": 15,
-            "cache_read": 0.25,
-            "tiers": [
-              {
-                "input": 5,
-                "output": 22.5,
-                "cache_read": 0.5,
-                "tier": {
-                  "type": "context",
-                  "size": 272000
-                }
-              }
-            ],
-            "context_over_200k": {
-              "input": 5,
-              "output": 22.5,
-              "cache_read": 0.5
-            }
-          }
-        },
-        "gpt-5.4-mini": {
-          "id": "gpt-5.4-mini",
-          "name": "GPT-5.4 mini",
-          "description": "Strong small GPT for coding subagents, quick tool use, and high-volume work",
-          "family": "gpt-mini",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "none",
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          ],
-          "tool_call": true,
-          "structured_output": true,
-          "temperature": false,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-03-17",
-          "last_updated": "2026-03-17",
-          "modalities": {
-            "input": [
-              "text",
-              "image"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 400000,
-            "input": 272000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 0.75,
-            "output": 4.5,
-            "cache_read": 0.075
-          }
-        },
-        "gpt-5.3-codex": {
-          "id": "gpt-5.3-codex",
-          "name": "GPT-5.3 Codex",
-          "description": "Coding-optimized GPT model for repository edits, reviews, and agentic software work",
-          "family": "gpt-codex",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          ],
-          "tool_call": true,
-          "structured_output": true,
-          "temperature": false,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-02-05",
-          "last_updated": "2026-02-05",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 400000,
-            "input": 272000,
-            "output": 128000
-          },
-          "cost": {
-            "input": 1.75,
-            "output": 14,
-            "cache_read": 0.175
-          }
-        },
-        "claude-sonnet-4.6": {
-          "id": "claude-sonnet-4.6",
-          "name": "Claude Sonnet 4.6",
-          "description": "Claude workhorse for coding agents, careful analysis, and production cost control",
-          "family": "claude-sonnet",
-          "attachment": true,
-          "reasoning": true,
-          "reasoning_options": [
-            {
-              "type": "effort",
-              "values": [
-                "low",
-                "medium",
-                "high",
-                "max"
-              ]
-            },
-            {
-              "type": "budget_tokens",
-              "min": 1024,
-              "max": 32000
-            }
-          ],
-          "tool_call": true,
-          "temperature": true,
-          "knowledge": "2025-08-31",
-          "release_date": "2026-02-17",
-          "last_updated": "2026-03-13",
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "open_weights": false,
-          "limit": {
-            "context": 200000,
-            "input": 168000,
-            "output": 32000
-          },
-          "cost": {
-            "input": 3,
-            "output": 15,
-            "cache_read": 0.3,
-            "cache_write": 3.75
-          }
-        }
-      }
+      ]
     }
   }
 }
