@@ -8,16 +8,21 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: registry-writer
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Fetch models.dev snapshot
+      - name: Fetch and validate models.dev candidate
         run: |
-          curl -fsSL --max-time 60 https://models.dev/api.json -o models.json.new
-          node -e "const m=require('./models.json.new'); const n=Object.keys(m).length; if(n<50) throw new Error('suspiciously few providers: '+n); console.log('fetched providers:', n)"
+          curl --compressed --fail --show-error --location --retry 3 --retry-all-errors --max-time 60 https://models.dev/api.json -o models.json.new
+          node scripts/validate-candidate.mjs models.json.new
           mv models.json.new models.json
 
       - name: Commit if changed

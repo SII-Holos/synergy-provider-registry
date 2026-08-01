@@ -103,7 +103,7 @@ providers = {
             70,
             "Vercel AI Gateway",
             "Connect Vercel AI Gateway for model routing through Vercel.",
-            "gpt-4o",
+            "openai/gpt-4o",
             {
                 "kind": "external",
                 "label": "Create Vercel AI Gateway token",

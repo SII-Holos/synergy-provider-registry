@@ -1,0 +1,32 @@
+name: Validate registry
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/**
+      - catalog.v1.json
+      - models.json
+      - scripts/**
+      - test/**
+      - README.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-registry-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run registry tests
+        run: node --test test/registry.test.mjs
+
+      - name: Validate published artifacts
+        run: node scripts/validate.mjs

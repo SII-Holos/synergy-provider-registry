@@ -5,7 +5,7 @@ Signed provider catalog and models.dev mirror for [Synergy](https://github.com/S
 This repo serves two decoupled artifacts:
 
 - **`catalog.v1.json`** — operational metadata for Synergy's builtin providers: recommendations (rank/headline/CTA), `modelsDevProviderID` alias remaps, and `fallbackModels` ID lists. It holds **no per-model data** — models are resolved client-side from the models.dev source, so this file never goes stale. Ed25519-signed.
-- **`models.json`** — an unmodified, daily-synced snapshot of `https://models.dev/api.json`, used as a fallback source when models.dev is unreachable from a client's network.
+- **`models.json`** — an unmodified snapshot of `https://models.dev/api.json`, refreshed every 6 hours and used as a fallback source when models.dev is unreachable from a client's network.
 
 ## Files
 
@@ -14,6 +14,7 @@ This repo serves two decoupled artifacts:
 - `models.json` — models.dev mirror, refreshed by the `sync-models` workflow (do not hand-edit).
 - `scripts/sign.mjs` — signs the catalog (used by CI).
 - `scripts/validate.mjs` — checks catalog consistency against `models.json` (used by CI).
+- `scripts/validate-candidate.mjs` — validates a candidate against Synergy's required provider/model structure and catalog references before publication.
 - `scripts/build-catalog.py` — regenerates `catalog.v1.json` from the canonical provider list.
 
 ## How clients consume it
@@ -29,12 +30,23 @@ Clients verify `catalog.v1.json` against a public key embedded in the client bef
 ## Updating the catalog
 
 1. Edit `scripts/build-catalog.py` (or `catalog.v1.json` directly), then regenerate with `python3 scripts/build-catalog.py`.
-2. Push to `main`. The `sign` workflow runs `validate.mjs` — if `fallbackModels` or `modelsDevProviderID` reference entries missing from `models.json`, signing fails and no new `.sig` is committed.
+2. Push to `main`. The `sign` workflow runs `validate.mjs` — if `recommendation.defaultModel`, `fallbackModels`, or `modelsDevProviderID` reference entries missing from `models.json`, signing fails and no new `.sig` is committed.
 3. Clients pick up the new catalog within their cache TTL (default 1 hour).
 
-The `sync-models` workflow refreshes `models.json` daily. Because that also triggers the `sign` workflow, a models.dev change that drops a referenced fallback model surfaces as a failed validation run — a signal to update `build-catalog.py`.
+The `sync-models` workflow refreshes `models.json` every 6 hours. It validates the candidate against Synergy's required models.dev structure and the current catalog before replacing the published mirror, so malformed snapshots or dropped default/fallback models fail the sync run without publishing an incompatible snapshot. The workflow's `GITHUB_TOKEN` push does not trigger the `sign` workflow.
 
 Do not hand-edit `catalog.v1.json.sig` or `models.json` — both are CI-generated.
+
+## Validation
+
+Run the registry checks locally without installing npm dependencies:
+
+```bash
+node --test test/registry.test.mjs
+node scripts/validate.mjs
+```
+
+Pull requests that change registry artifacts, scripts, workflows, tests, or this README run the same checks in the read-only `Validate registry` workflow.
 
 ## Key management
 
