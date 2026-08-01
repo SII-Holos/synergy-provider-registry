@@ -1,18 +1,20 @@
-// Validates catalog.v1.json against models.json (the models.dev mirror).
+// Validates a provider catalog against a models.dev snapshot.
+//
+// Usage: node scripts/validate.mjs [catalog-path] [models-path]
 //
 // Checks:
 //   1. catalog shape — version 1, every provider has id+name, only known keys.
-//   2. modelsDevProviderID targets exist in models.json (or in the catalog).
-//   3. every fallbackModels entry resolves to a model present in the mapped
-//      models.json provider — otherwise the client would synthesize a bare
-//      fallbackModel with no real metadata.
+//   2. modelsDevProviderID targets exist in the models snapshot (or catalog).
+//   3. recommendation.defaultModel and fallbackModels resolve in the mapped
+//      models provider so clients never receive unresolved model IDs.
 //
-// Exits non-zero on any violation so CI blocks signing a broken catalog.
+// Exits non-zero on any violation so CI blocks publishing broken artifacts.
 
 import { readFileSync } from "node:fs"
 
-const catalog = JSON.parse(readFileSync("catalog.v1.json", "utf8"))
-const models = JSON.parse(readFileSync("models.json", "utf8"))
+const [catalogPath = "catalog.v1.json", modelsPath = "models.json"] = process.argv.slice(2)
+const catalog = JSON.parse(readFileSync(catalogPath, "utf8"))
+const models = JSON.parse(readFileSync(modelsPath, "utf8"))
 
 const KNOWN_KEYS = new Set([
   "id", "name", "api", "env", "npm", "description", "signupUrl",
@@ -49,9 +51,13 @@ for (const [pid, p] of Object.entries(catalog.providers ?? {})) {
     continue
   }
 
+  const defaultModel = p.recommendation?.defaultModel
+  if (defaultModel && !source.models?.[defaultModel]) {
+    fail(`${pid}: defaultModel "${defaultModel}" not in models provider "${sourceID}"`)
+  }
   for (const modelID of p.fallbackModels ?? []) {
     if (!source.models?.[modelID]) {
-      fail(`${pid}: fallbackModel "${modelID}" not in models.json provider "${sourceID}"`)
+      fail(`${pid}: fallbackModel "${modelID}" not in models provider "${sourceID}"`)
     }
   }
 }
@@ -60,4 +66,4 @@ if (failures > 0) {
   console.error(`\n${failures} consistency violation(s)`)
   process.exit(1)
 }
-console.log(`catalog consistent with models.json (${Object.keys(catalog.providers).length} providers)`)
+console.log(`catalog consistent with ${modelsPath} (${Object.keys(catalog.providers).length} providers)`)

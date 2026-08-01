@@ -87,7 +87,7 @@
         "rank": 70,
         "headline": "Vercel AI Gateway",
         "reason": "Connect Vercel AI Gateway for model routing through Vercel.",
-        "defaultModel": "gpt-4o",
+        "defaultModel": "openai/gpt-4o",
         "cta": {
           "kind": "external",
           "label": "Create Vercel AI Gateway token",

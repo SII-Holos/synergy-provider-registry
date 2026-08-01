@@ -9,11 +9,16 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: registry-writer
+  cancel-in-progress: false
+
 jobs:
   sign:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Validate catalog against models.json
         run: node scripts/validate.mjs
