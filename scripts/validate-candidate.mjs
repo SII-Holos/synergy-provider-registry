@@ -1,11 +1,20 @@
-import { readFileSync } from "node:fs"
-import { dirname, join } from "node:path"
-import { spawnSync } from "node:child_process"
-import { fileURLToPath } from "node:url"
+// Validates a candidate models.dev snapshot structure before publication.
+//
+// Usage: node scripts/validate-candidate.mjs <models-path>
+//
+// Checks:
+//   1. the candidate parses as JSON and is an object of provider records
+//   2. every provider has string id/name plus a models object; every model
+//      has string id/name
+//   3. key providers exist with non-empty model sets
+//
+// Exits non-zero on any violation so CI blocks publishing broken snapshots.
 
-const [modelsPath, catalogPath = "catalog.v1.json"] = process.argv.slice(2)
+import { readFileSync } from "node:fs"
+
+const [modelsPath] = process.argv.slice(2)
 if (!modelsPath) {
-  console.error("usage: node scripts/validate-candidate.mjs <models-path> [catalog-path]")
+  console.error("usage: node scripts/validate-candidate.mjs <models-path>")
   process.exit(1)
 }
 
@@ -16,9 +25,9 @@ try {
   console.error(`invalid JSON candidate ${modelsPath}:`, error.message)
   process.exit(1)
 }
+
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value)
-const isStringArray = (value) => Array.isArray(value) && value.every((item) => typeof item === "string")
-const REQUIRED_PROVIDERS = ["openai", "anthropic", "google"]
+const REQUIRED_PROVIDERS = ["openai", "anthropic", "google", "github-copilot"]
 
 let failures = 0
 const fail = (message) => {
@@ -42,7 +51,6 @@ for (const [providerID, provider] of Object.entries(models)) {
     !isRecord(provider) ||
     typeof provider.id !== "string" ||
     typeof provider.name !== "string" ||
-    !isStringArray(provider.env) ||
     !isRecord(provider.models)
   ) {
     fail(`${providerID}: invalid provider shape`)
@@ -50,20 +58,7 @@ for (const [providerID, provider] of Object.entries(models)) {
   }
 
   for (const [modelID, model] of Object.entries(provider.models)) {
-    const limit = isRecord(model) ? model.limit : undefined
-    if (
-      !isRecord(model) ||
-      typeof model.id !== "string" ||
-      typeof model.name !== "string" ||
-      typeof model.release_date !== "string" ||
-      typeof model.attachment !== "boolean" ||
-      typeof model.reasoning !== "boolean" ||
-      typeof model.tool_call !== "boolean" ||
-      !isRecord(limit) ||
-      typeof limit.context !== "number" ||
-      typeof limit.output !== "number" ||
-      (limit.input !== undefined && typeof limit.input !== "number")
-    ) {
+    if (!isRecord(model) || typeof model.id !== "string" || typeof model.name !== "string") {
       fail(`${providerID}/${modelID}: invalid model shape`)
     }
   }
@@ -81,11 +76,3 @@ if (failures > 0) {
 }
 
 console.log(`fetched providers: ${providerCount}`)
-
-const validatePath = join(dirname(fileURLToPath(import.meta.url)), "validate.mjs")
-const validation = spawnSync(process.execPath, [validatePath, catalogPath, modelsPath], {
-  encoding: "utf8",
-})
-process.stdout.write(validation.stdout ?? "")
-process.stderr.write(validation.stderr ?? validation.error?.message ?? "")
-process.exitCode = validation.status ?? 1

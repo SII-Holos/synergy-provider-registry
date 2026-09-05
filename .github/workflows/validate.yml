@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - .github/workflows/**
-      - catalog.v1.json
       - models.json
       - scripts/**
       - test/**
@@ -28,5 +27,5 @@ jobs:
       - name: Run registry tests
         run: node --test test/registry.test.mjs
 
-      - name: Validate published artifacts
-        run: node scripts/validate.mjs
+      - name: Validate models.json structure
+        run: node scripts/validate-candidate.mjs models.json

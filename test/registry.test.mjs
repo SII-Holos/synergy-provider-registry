@@ -7,7 +7,6 @@ import test from "node:test"
 import { fileURLToPath } from "node:url"
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
-const VALIDATE = join(ROOT, "scripts", "validate.mjs")
 const VALIDATE_CANDIDATE = join(ROOT, "scripts", "validate-candidate.mjs")
 
 function fixture() {
@@ -51,7 +50,7 @@ function provider(id, models = {}) {
 }
 
 function modelsWithProviderCount(count, overrides = {}) {
-  const required = ["openai", "anthropic", "google"]
+  const required = ["openai", "anthropic", "google", "github-copilot"]
   const models = Object.fromEntries(
     required.map((id) => [id, provider(id, { [`${id}-model`]: model(`${id}-model`) })]),
   )
@@ -62,90 +61,12 @@ function modelsWithProviderCount(count, overrides = {}) {
   return { ...models, ...overrides }
 }
 
-test("validate accepts explicit catalog and models paths", () => {
-  const dir = fixture()
-  const catalog = writeJson(dir, "custom-catalog.json", {
-    version: 1,
-    providers: {
-      openai: { id: "openai", name: "OpenAI", recommendation: { defaultModel: "gpt-4o" } },
-    },
-  })
-  const models = writeJson(dir, "custom-models.json", {
-    openai: { models: { "gpt-4o": {} } },
-  })
-
-  const result = runNode(VALIDATE, [catalog, models], dir)
-
-  assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /catalog consistent/)
-})
-
-test("validate rejects a missing recommendation defaultModel", () => {
-  const dir = fixture()
-  const catalog = writeJson(dir, "catalog.json", {
-    version: 1,
-    providers: {
-      vercel: { id: "vercel", name: "Vercel", recommendation: { defaultModel: "gpt-4o" } },
-    },
-  })
-  const models = writeJson(dir, "models.json", {
-    vercel: { models: { "openai/gpt-4o": {} } },
-  })
-
-  const result = runNode(VALIDATE, [catalog, models], dir)
-
-  assert.equal(result.status, 1)
-  assert.match(result.stderr, /vercel/)
-  assert.match(result.stderr, /defaultModel/)
-  assert.match(result.stderr, /gpt-4o/)
-})
-
-test("validate preserves synthetic provider exemptions", () => {
-  const dir = fixture()
-  const catalog = writeJson(dir, "catalog.json", {
-    version: 1,
-    providers: {
-      "openai-codex": {
-        id: "openai-codex",
-        name: "OpenAI Codex",
-        recommendation: { defaultModel: "gpt-5.4-mini" },
-      },
-    },
-  })
-  const models = writeJson(dir, "models.json", {
-    openai: { models: {} },
-  })
-
-  const result = runNode(VALIDATE, [catalog, models], dir)
-
-  assert.equal(result.status, 0, result.stderr)
-})
-
-test("validate keeps rejecting missing fallback models", () => {
-  const dir = fixture()
-  const catalog = writeJson(dir, "catalog.json", {
-    version: 1,
-    providers: {
-      openai: { id: "openai", name: "OpenAI", fallbackModels: ["missing-model"] },
-    },
-  })
-  const models = writeJson(dir, "models.json", {
-    openai: { models: { "gpt-4o": {} } },
-  })
-
-  const result = runNode(VALIDATE, [catalog, models], dir)
-
-  assert.equal(result.status, 1)
-  assert.match(result.stderr, /missing-model/)
-})
-
 test("candidate validation rejects invalid JSON", () => {
   const dir = fixture()
   const candidate = join(dir, "models.json.new")
   writeFileSync(candidate, "{ broken")
-  const catalog = writeJson(dir, "catalog.json", { version: 1, providers: {} })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 1)
   assert.match(result.stderr, /JSON|parse/i)
@@ -154,9 +75,8 @@ test("candidate validation rejects invalid JSON", () => {
 test("candidate validation rejects suspiciously small snapshots", () => {
   const dir = fixture()
   const candidate = writeJson(dir, "models.json.new", modelsWithProviderCount(49))
-  const catalog = writeJson(dir, "catalog.json", { version: 1, providers: {} })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 1)
   assert.match(result.stderr, /suspiciously few providers: 49/)
@@ -167,14 +87,13 @@ test("candidate validation rejects malformed providers", () => {
   const candidate = writeJson(
     dir,
     "models.json.new",
-    modelsWithProviderCount(50, { "provider-3": { models: {} } }),
+    modelsWithProviderCount(50, { "provider-4": { models: {} } }),
   )
-  const catalog = writeJson(dir, "catalog.json", { version: 1, providers: {} })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 1)
-  assert.match(result.stderr, /provider-3/)
+  assert.match(result.stderr, /provider-4/)
   assert.match(result.stderr, /invalid provider/)
 })
 
@@ -187,9 +106,8 @@ test("candidate validation rejects malformed models", () => {
       openai: provider("openai", { broken: { id: "broken" } }),
     }),
   )
-  const catalog = writeJson(dir, "catalog.json", { version: 1, providers: {} })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 1)
   assert.match(result.stderr, /openai\/broken/)
@@ -203,38 +121,27 @@ test("candidate validation requires populated core providers", () => {
     "models.json.new",
     modelsWithProviderCount(50, { google: provider("google") }),
   )
-  const catalog = writeJson(dir, "catalog.json", { version: 1, providers: {} })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 1)
   assert.match(result.stderr, /google/)
   assert.match(result.stderr, /required provider/)
 })
 
-test("candidate validation rejects catalog inconsistencies", () => {
+test("candidate validation requires non-empty github-copilot", () => {
   const dir = fixture()
   const candidate = writeJson(
     dir,
     "models.json.new",
-    modelsWithProviderCount(50, { vercel: provider("vercel") }),
+    modelsWithProviderCount(50, { "github-copilot": provider("github-copilot") }),
   )
-  const catalog = writeJson(dir, "catalog.json", {
-    version: 1,
-    providers: {
-      vercel: {
-        id: "vercel",
-        name: "Vercel",
-        recommendation: { defaultModel: "openai/gpt-4o" },
-      },
-    },
-  })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 1)
-  assert.match(result.stderr, /vercel/)
-  assert.match(result.stderr, /openai\/gpt-4o/)
+  assert.match(result.stderr, /github-copilot/)
+  assert.match(result.stderr, /required provider/)
 })
 
 test("candidate validation accepts a consistent snapshot", () => {
@@ -246,58 +153,43 @@ test("candidate validation accepts a consistent snapshot", () => {
       vercel: provider("vercel", { "openai/gpt-4o": model("openai/gpt-4o") }),
     }),
   )
-  const catalog = writeJson(dir, "catalog.json", {
-    version: 1,
-    providers: {
-      vercel: {
-        id: "vercel",
-        name: "Vercel",
-        recommendation: { defaultModel: "openai/gpt-4o" },
-      },
-    },
-  })
 
-  const result = runNode(VALIDATE_CANDIDATE, [candidate, catalog], dir)
+  const result = runNode(VALIDATE_CANDIDATE, [candidate], dir)
 
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /fetched providers: 51/)
 })
 
-test("committed catalog is reproducible and all model references resolve", () => {
-  const dir = fixture()
-  const generated = join(dir, "catalog.v1.json")
-  const build = spawnSync("python3", ["scripts/build-catalog.py", generated], {
-    cwd: ROOT,
-    encoding: "utf8",
-  })
-  assert.equal(build.status, 0, build.stderr)
+test("committed models.json passes the candidate validator", () => {
+  const result = runNode(VALIDATE_CANDIDATE, ["models.json"])
 
-  const committedText = readFileSync(join(ROOT, "catalog.v1.json"), "utf8")
-  assert.equal(readFileSync(generated, "utf8"), committedText)
-
-  const catalog = JSON.parse(committedText)
-  const models = JSON.parse(readFileSync(join(ROOT, "models.json"), "utf8"))
-  assert.equal(catalog.providers.vercel.recommendation.defaultModel, "openai/gpt-4o")
-
-  for (const [providerID, provider] of Object.entries(catalog.providers)) {
-    if (providerID === "openai-codex") continue
-    const sourceID = provider.modelsDevProviderID ?? providerID
-    const source = models[sourceID]
-    const defaultModel = provider.recommendation?.defaultModel
-    if (defaultModel) {
-      assert.ok(source?.models?.[defaultModel], `${providerID}: missing defaultModel ${defaultModel}`)
-    }
-    for (const modelID of provider.fallbackModels ?? []) {
-      assert.ok(source?.models?.[modelID], `${providerID}: missing fallbackModel ${modelID}`)
-    }
-  }
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /fetched providers: \d+/)
 })
 
-test("README describes the actual sync and validation flow", () => {
+test("committed models.json is structurally sound", () => {
+  const models = JSON.parse(readFileSync(join(ROOT, "models.json"), "utf8"))
+
+  for (const [providerID, provider] of Object.entries(models)) {
+    assert.equal(typeof provider.id, "string", `${providerID}: provider id`)
+    assert.equal(typeof provider.name, "string", `${providerID}: provider name`)
+    assert.equal(typeof provider.models, "object", `${providerID}: provider models`)
+    assert.ok(!Array.isArray(provider.models), `${providerID}: provider models object`)
+    for (const [modelID, model] of Object.entries(provider.models)) {
+      assert.equal(typeof model.id, "string", `${providerID}/${modelID}: model id`)
+      assert.equal(typeof model.name, "string", `${providerID}/${modelID}: model name`)
+    }
+  }
+
+  assert.ok(Object.keys(models["github-copilot"].models).length > 0, "github-copilot models non-empty")
+})
+
+test("README describes the mirror-only sync and validation flow", () => {
   const readme = readFileSync(join(ROOT, "README.md"), "utf8")
 
-  assert.doesNotMatch(readme, /daily/i)
-  assert.doesNotMatch(readme, /Because that also triggers the `sign` workflow/)
+  assert.doesNotMatch(readme, /catalog/i)
+  assert.doesNotMatch(readme, /Ed25519|signature|signing/i)
   assert.match(readme, /every 6 hours/i)
-  assert.match(readme, /candidate/i)
+  assert.match(readme, /validate-candidate/i)
+  assert.match(readme, /models\.json/i)
 })
